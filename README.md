@@ -11,4 +11,4 @@ Completed in Python, the following packages are used
  
 # Launch
 
-All code is included in the R Markdown file. The data file can be found in the data folder. 
+All code is included in the R Markdown file, and the data file is included in the repository. 
