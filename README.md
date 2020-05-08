@@ -4,7 +4,7 @@ This project uses patients' current health conditions to determine survival rate
 
 ## Technologies
 
-Completed in Python, the following packages are used
+Completed in R, the following packages are used
  - caTools
  - foreign
  - ggm
