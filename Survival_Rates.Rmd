@@ -1,0 +1,65 @@
+---
+title: "Assignment 7.1"
+author: "Joi Chu-Ketterer"
+date: "July 17th 2019"
+output:
+  word_document: default
+---
+
+```{r, include=FALSE}
+library(caTools)
+library(foreign)
+library(ggm)
+```
+
+
+```{r}
+surgery <- read.arff("surgery.arff")
+surgery
+```
+
+In order to understand what I was looking at, I searched up the data set on UC Irvine's page and replaced the existing headers with their actual names. Now, to create a binary logitics regression model, I will use the glm() function and use map it to a binomial. A binary logistic regression isn't fancy computationally, it just means that we are trying to predict a Boolean dependent variable.  
+
+
+```{r}
+survival <- glm(Risk1Yr ~ FVC + FEV1 + PerformanceStatus + Pain + Haemoptysis + Dyspnoea + Cough + Weakness + TumorSize + Diabetes + MI6Months + PAD + Smoking+ Asthma + AGE, data = surgery, family = binomial())
+summary(survival)
+```
+
+To understand which variable has the biggest affect, we are looking at our standardized coefficient where the largest absolute value tells us that variable has the largest impact. In our data set, that would be the MI6Months variable with a value of 1.003e+03. The MI6Months variable is a Boolean that refers to whether the patient had a heart attack (myocardial infarction) up to 6 months after the surgery. The second second variable with the biggest impact is AsthmaT, also a Boolean variable referring to whether the patient had asthma or not. The third most impactful variable is the DyspnoaT, which is once again a Boolean variable and indicates whether the patient had dyspnoea (hard of breathing) prior to the surgery. 
+
+We can determine the accuracy of our model. Below, the SplitRatio determines what percent of our data will be reserved as training or test data, where SplitRatio = 0.8 indicates 80% of our dataset will be allocated as training data. 
+
+```{r}
+split <- sample.split(surgery, SplitRatio = 0.8)
+split
+
+train <- subset(surgery, split == "TRUE")
+test <- subset(surgery, split == "FALSE")
+```
+
+Once we have split our data, we need to first create a model using the training data, and then create a model using the test data. 
+
+```{r}
+test_model <- predict(survival, test, type = "response")
+test_model
+
+test_model <- predict(survival, train, type = "response")
+test_model
+```
+
+We can determine the success of our training model by creating a confusion matrix. This will give us insight into how many false positives or false negatives we got. 
+
+```{r}
+confmatrix <- table(Actual_value = train$Risk1Yr, Predicted_value = test_model > 0.5)
+confmatrix
+```
+
+From our confusion table, we can see that we correctly predicted 307 False cases, predicted 47 false positives, 5 false negatives, and didn't correcly predict any actual positives. While at first glance, this seems like our model did alright, we can confirm by calculating the accuracy of the model. 
+
+```{r}
+accuracy = (confmatrix[[1,1]] + confmatrix[[2,2]])/sum(confmatrix)
+accuracy 
+```
+
+With a resulting accuracy value of 0.855, we know that our model is performing at 85.5% accuracy, and so the predictors in the model are pretty good choices to include. 
